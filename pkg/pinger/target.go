@@ -23,13 +23,11 @@ type ResolvedTarget struct {
 }
 
 func parseHostFromURL(uri string) string {
-	log.Debug().Msgf("Parsing host from URL: %s", uri)
 	u, err := url.Parse(uri)
 	if err != nil {
 		log.Warn().Err(err).Msgf("Failed to parse URL: %s", uri)
 		return uri
 	}
-	log.Debug().Msgf("Extracted url: %+v")
 	return u.Hostname()
 }
 
@@ -42,7 +40,6 @@ func ParseTarget(s string) *Target {
 
 	var host, label string
 	if strings.Contains(s, "://") {
-		log.Debug().Msgf("Parsing host from URL: %s", host)
 		host = parseHostFromURL(s)
 		log.Info().Msg("Parsed host from URL: " + host)
 		return &Target{
