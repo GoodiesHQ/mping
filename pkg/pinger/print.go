@@ -8,6 +8,11 @@ import (
 
 const widthMin = 9
 
+type PrintOptions struct {
+	showRTT bool
+	widths  []int
+}
+
 // calculateColumnWidths computes the width of each column based on the length of the target labels
 func calculateColumnWidths(targets []ResolvedTarget) []int {
 	widths := make([]int, len(targets))
@@ -23,21 +28,27 @@ func calculateColumnWidths(targets []ResolvedTarget) []int {
 }
 
 // printStats prints the aggregated statistics in a formatted table
-func printStats(widths []int, stats []PingStats) {
+func printStats(opts *PrintOptions, stats []PingStats) {
 	var msg string
+
+	fmt.Println()
+	fmt.Print("Total ")
+	for i := range stats {
+		format := " %-" + strconv.Itoa(opts.widths[i]) + "s"
+		fmt.Printf(format, strconv.FormatInt(int64(stats[i].Success()+stats[i].Failure()), 10))
+	}
 
 	fmt.Println()
 	fmt.Print("Fails ")
 	for i := range stats {
-		format := " %-" + strconv.Itoa(widths[i]) + "s"
-		msg = fmt.Sprintf("%d", stats[i].Failure())
-		fmt.Printf(format, msg)
+		format := " %-" + strconv.Itoa(opts.widths[i]) + "s"
+		fmt.Printf(format, strconv.FormatInt(int64(stats[i].Failure()), 10))
 	}
 
 	fmt.Println()
 	fmt.Print("Loss  ")
 	for i := range stats {
-		format := " %-" + strconv.Itoa(widths[i]) + "s"
+		format := " %-" + strconv.Itoa(opts.widths[i]) + "s"
 		msg = fmt.Sprintf("%.1f%%", stats[i].PacketLoss())
 		fmt.Printf(format, msg)
 	}
@@ -45,7 +56,7 @@ func printStats(widths []int, stats []PingStats) {
 	fmt.Println()
 	fmt.Print("RTT   ")
 	for i := range stats {
-		format := " %-" + strconv.Itoa(widths[i]) + "s"
+		format := " %-" + strconv.Itoa(opts.widths[i]) + "s"
 		if ms := stats[i].AvgRTT().Milliseconds(); ms == 0 {
 			msg = "-"
 		} else {
@@ -58,7 +69,7 @@ func printStats(widths []int, stats []PingStats) {
 }
 
 // printResults prints the results of a ping round in a formatted table
-func printResults(counter uint32, widths []int, results []PingResult, showLabels bool) {
+func printResults(counter uint32, opts *PrintOptions, results []PingResult, showLabels bool) {
 	// widths := calculateColumnWidths(results)
 	ctr := fmt.Sprintf("%5d)", counter)
 	spc := strings.Repeat(" ", len(ctr))
@@ -67,27 +78,30 @@ func printResults(counter uint32, widths []int, results []PingResult, showLabels
 		fmt.Println()
 		fmt.Print(spc)
 		for i, result := range results {
-			format := " %-" + strconv.Itoa(widths[i]) + "s"
+			format := " %-" + strconv.Itoa(opts.widths[i]) + "s"
 			fmt.Printf(format, result.Target.Label)
 		}
 		fmt.Println()
 		fmt.Print(spc)
 		for i := range results {
-			format := " %-" + strconv.Itoa(widths[i]) + "s"
-			fmt.Printf(format, strings.Repeat("-", widths[i]))
+			format := " %-" + strconv.Itoa(opts.widths[i]) + "s"
+			fmt.Printf(format, strings.Repeat("-", opts.widths[i]))
 		}
 		fmt.Println()
 	}
 
 	fmt.Print(ctr)
 	for i, result := range results {
-		format := " %-" + strconv.Itoa(widths[i]) + "s"
-		if result.Success {
-			rttStr := strconv.Itoa(int(result.RTT.Milliseconds())) + "ms"
-			fmt.Printf(format, rttStr)
-		} else {
-			fmt.Printf(format, "FAIL")
+		format := " %-" + strconv.Itoa(opts.widths[i]) + "s"
+		var msg = ""
+		if opts.showRTT {
+			if result.Success {
+				msg = strconv.Itoa(int(result.RTT.Milliseconds())) + "ms"
+			} else {
+				msg = "FAIL"
+			}
 		}
+		fmt.Printf(format, msg)
 	}
 	fmt.Println()
 }

@@ -10,15 +10,17 @@ import (
 
 type PingerOptions struct {
 	ResolvedTargets []ResolvedTarget
+	Count           uint32
+	ShowRTT         bool
 	Interval        time.Duration
 	Timeout         time.Duration
-	Count           uint32
 }
 
 type Pinger struct {
 	pool     *goropo.Pool
 	targets  []ResolvedTarget
 	count    uint32
+	showRTT  bool
 	interval time.Duration
 	timeout  time.Duration
 }
@@ -30,6 +32,7 @@ func NewPinger(opts PingerOptions) *Pinger {
 		count:    opts.Count,
 		interval: opts.Interval,
 		timeout:  opts.Timeout,
+		showRTT:  opts.ShowRTT,
 	}
 }
 
@@ -65,8 +68,12 @@ func (p *Pinger) Start(ctx context.Context) error {
 	// counter variable to track number of ping rounds
 	counter := uint32(1)
 
-	// column widths based on target labels
+	// create output print options
 	widths := calculateColumnWidths(p.targets)
+	opts := &PrintOptions{
+		showRTT: p.showRTT,
+		widths:  widths,
+	}
 
 	// stats for each target
 	stats := make([]PingStats, len(p.targets))
@@ -77,7 +84,7 @@ func (p *Pinger) Start(ctx context.Context) error {
 			// clear the current line to ignore the "^C" output
 			fmt.Printf("\r\033[2K")
 		}
-		printStats(widths, stats)
+		printStats(opts, stats)
 	}()
 
 	// ticker for interval timing
@@ -100,7 +107,7 @@ func (p *Pinger) Start(ctx context.Context) error {
 		}
 
 		// print results for this round, include labels every 10 rounds
-		printResults(counter, widths, results, counter%10 == 1)
+		printResults(counter, opts, results, counter%10 == 1)
 
 		// check if we've reached the specified count
 		if p.count > 0 && counter >= p.count {
