@@ -4,11 +4,14 @@ import (
 	"fmt"
 	"strconv"
 	"strings"
+
+	"github.com/fatih/color"
 )
 
 const widthMin = 9
 
 type PrintOptions struct {
+	color   bool
 	showRTT bool
 	widths  []int
 }
@@ -92,16 +95,25 @@ func printResults(counter uint32, opts *PrintOptions, results []PingResult, show
 
 	fmt.Print(ctr)
 	for i, result := range results {
-		format := " %-" + strconv.Itoa(opts.widths[i]) + "s"
+		printer := fmt.Printf
+
 		var msg = ""
-		if opts.showRTT {
-			if result.Success {
-				msg = strconv.Itoa(int(result.RTT.Milliseconds())) + "ms"
-			} else {
-				msg = "FAIL"
+		format := "%-" + strconv.Itoa(opts.widths[i]) + "s"
+		if result.Success {
+			msg = strconv.Itoa(int(result.RTT.Milliseconds())) + "ms"
+			if opts.color {
+				msg = " " + msg
+				printer = color.New(color.BgGreen, color.FgHiBlack).Printf
+			}
+		} else {
+			msg = "-"
+			if opts.color {
+				msg = " " + msg
+				printer = color.New(color.BgRed, color.FgHiWhite).Printf
 			}
 		}
-		fmt.Printf(format, msg)
+		fmt.Print(" ")
+		printer(format, msg)
 	}
 	fmt.Println()
 }

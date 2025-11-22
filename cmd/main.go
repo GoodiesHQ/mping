@@ -44,6 +44,10 @@ func init() {
 				Aliases: []string{"6"},
 				Usage:   "Use IPv6 for name resolution",
 			},
+			&cli.BoolFlag{
+				Name:  "no-color",
+				Usage: "Disable colored output",
+			},
 			&cli.Uint32Flag{
 				Name:    "count",
 				Aliases: []string{"c"},
@@ -180,6 +184,7 @@ func action(ctx context.Context, c *cli.Command) error {
 	log.Debug().Uint32("count", count).Msgf("Pinging %d targets", len(targets))
 	pinger := pinger.NewPinger(pinger.PingerOptions{
 		ResolvedTargets: resolved,
+		Color:           !c.Bool("no-color"),
 		Count:           count,
 		Interval:        interval,
 		Timeout:         timeout,

@@ -10,6 +10,7 @@ import (
 
 type PingerOptions struct {
 	ResolvedTargets []ResolvedTarget
+	Color           bool
 	Count           uint32
 	ShowRTT         bool
 	Interval        time.Duration
@@ -19,6 +20,7 @@ type PingerOptions struct {
 type Pinger struct {
 	pool     *goropo.Pool
 	targets  []ResolvedTarget
+	color    bool
 	count    uint32
 	showRTT  bool
 	interval time.Duration
@@ -29,6 +31,7 @@ func NewPinger(opts PingerOptions) *Pinger {
 	return &Pinger{
 		pool:     goropo.NewPool(len(opts.ResolvedTargets), len(opts.ResolvedTargets)),
 		targets:  opts.ResolvedTargets,
+		color:    opts.Color,
 		count:    opts.Count,
 		interval: opts.Interval,
 		timeout:  opts.Timeout,
@@ -71,6 +74,7 @@ func (p *Pinger) Start(ctx context.Context) error {
 	// create output print options
 	widths := calculateColumnWidths(p.targets)
 	opts := &PrintOptions{
+		color:   p.color,
 		showRTT: p.showRTT,
 		widths:  widths,
 	}

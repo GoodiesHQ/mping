@@ -63,10 +63,10 @@ Pinging an IPv4 and an IPv6 address with provided labels to shorten the output.
 
            CFDNS4    CFDNS6    notarealhost.local
            --------- --------- ------------------
-        1) 16ms      16ms      FAIL        
-        2) 17ms      14ms      FAIL        
-        3) 17ms      13ms      FAIL        
-        4) 20ms      14ms      FAIL        
+        1) 16ms      16ms      -           
+        2) 17ms      14ms      -           
+        3) 17ms      13ms      -           
+        4) 20ms      14ms      -           
 
     Total  4         4         4           
     Fails  0         0         4           
@@ -99,16 +99,16 @@ Verbose output showing resolutions and debug information using IPv6 for DNS reso
     Loss   0.0%      0.0%      0.0%            0.0%     
     RTT    22ms      22ms      20ms            21ms
 
-Similar to the last command, but setting the interval to 0.015 seconds (15ms). If the timeout is greater than the interval, the timeout will be reduced to be the value of the provided interval. Any response which takes more than 15ms will result in a FAIL status.
+Similar to the last command, but setting the interval to 0.015 seconds (15ms). If the timeout is greater than the interval, the timeout will be reduced to be the value of the provided interval. Any response which takes more than 15ms will result in a -    status.
 
     # mping -c 4 1.1.1.1=CFDNS4 2606:4700:4700::1111=CFDNS6 one.one.one.one example.com=Example -6 -i 0.015
 
            CFDNS4    CFDNS6    one.one.one.one Example  
            --------- --------- --------------- ---------
-        1) FAIL      FAIL      14ms            FAIL     
+        1) -         -         14ms            -        
         2) 14ms      13ms      14ms            14ms     
-        3) FAIL      FAIL      14ms            FAIL     
-        4) FAIL      14ms      FAIL            FAIL     
+        3) -         -         14ms            -        
+        4) -         14ms      -               -        
 
     Total  4         4         4               4        
     Fails  3         2         1               3        
