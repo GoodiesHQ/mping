@@ -45,8 +45,9 @@ func init() {
 				Usage:   "Use IPv6 for name resolution",
 			},
 			&cli.BoolFlag{
-				Name:  "no-color",
-				Usage: "Disable colored output",
+				Name:    "no-color",
+				Aliases: []string{"bland", "b"},
+				Usage:   "Disable colored output",
 			},
 			&cli.Uint32Flag{
 				Name:    "count",

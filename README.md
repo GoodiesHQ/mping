@@ -157,3 +157,11 @@ Running without a count, it will run until you it `Ctrl+C`. The labels will re-p
     Fails  0         0         0               0        
     Loss   0.0%      0.0%      0.0%            0.0%     
     RTT    17ms      16ms      16ms            16ms
+
+Colored output (Default)
+
+![ Colored output](./screenshots/color.png) 
+
+Bland output (`--no-color` or `--bland` or `-b`)
+
+![ Bland output](./screenshots/bland.png) 
