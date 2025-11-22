@@ -2,16 +2,20 @@ package main
 
 import (
 	"context"
+	_ "embed"
 	"os"
 	"os/signal"
 	"syscall"
 	"time"
 
 	"github.com/goodieshq/mping/pkg/pinger"
+	"github.com/goodieshq/mping/pkg/privcheck"
 	"github.com/rs/zerolog"
 	"github.com/rs/zerolog/log"
 	"github.com/urfave/cli/v3"
 )
+
+var Version string = "dev"
 
 var app *cli.Command
 
@@ -25,6 +29,11 @@ func init() {
 		Usage:       "Multi-Target Ping Utility",
 		Description: "mping is a command-line utility that allows users to ping multiple targets simultaneously.",
 		Flags: []cli.Flag{
+			&cli.BoolFlag{
+				Name:    "version",
+				Aliases: []string{"V"},
+				Usage:   "Show the version number",
+			},
 			&cli.BoolFlag{
 				Name:    "ipv4",
 				Aliases: []string{"4"},
@@ -95,6 +104,17 @@ func main() {
 }
 
 func action(ctx context.Context, c *cli.Command) error {
+	if c.Bool("version") {
+		println(Version)
+		return nil
+	}
+
+	// Check for administrative privileges
+	if !privcheck.HasAdmin() {
+		return cli.Exit("Administrative privileges are required to use mping.", 1)
+	}
+
+	// Set verbose logging if specified
 	if c.Bool("verbose") {
 		log.Logger = log.Logger.Level(zerolog.DebugLevel)
 		log.Debug().Msg("Verbose logging enabled")
