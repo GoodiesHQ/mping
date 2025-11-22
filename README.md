@@ -61,12 +61,12 @@ Pinging an IPv4 and an IPv6 address with provided labels to shorten the output.
 
     # mping -c 4 1.1.1.1=CFDNS4 2606:4700:4700::1111=CFDNS6 notarealhost.local
 
-       CFDNS4    CFDNS6    notarealhost.local
-       --------- --------- ------------------
-    1) 16ms      16ms      FAIL        
-    2) 17ms      14ms      FAIL        
-    3) 17ms      13ms      FAIL        
-    4) 20ms      14ms      FAIL        
+           CFDNS4    CFDNS6    notarealhost.local
+           --------- --------- ------------------
+        1) 16ms      16ms      FAIL        
+        2) 17ms      14ms      FAIL        
+        3) 17ms      13ms      FAIL        
+        4) 20ms      14ms      FAIL        
 
     Total  4         4         4           
     Fails  0         0         4           
