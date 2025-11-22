@@ -9,6 +9,12 @@
 *.dylib
 mping
 
+# dist directory
+/dist/
+
+# builder directory
+/builder/
+
 # Test binary, built with `go test -c`
 *.test
 
