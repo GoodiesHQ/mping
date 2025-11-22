@@ -32,7 +32,7 @@ func init() {
 			&cli.BoolFlag{
 				Name:    "version",
 				Aliases: []string{"V"},
-				Usage:   "Show the version number",
+				Usage:   "Show the version number and exit",
 			},
 			&cli.BoolFlag{
 				Name:    "ipv4",
@@ -47,33 +47,29 @@ func init() {
 			&cli.Uint32Flag{
 				Name:    "count",
 				Aliases: []string{"c"},
-				Usage:   "Number of echo requests to send to each target (default: unlimited)",
+				Usage:   "Number of echo requests to send to each target (0 = unlimited)",
 				Value:   0,
-			},
-			&cli.BoolFlag{
-				Name:    "latency",
-				Aliases: []string{"l"},
-				Usage:   "Show latency for each ping response",
 			},
 			&cli.Float64Flag{
 				Name:    "interval",
 				Aliases: []string{"i"},
-				Usage:   "Interval (in seconds) between sending each packet (default: 1 second)",
+				Usage:   "Interval (in seconds) between sending each packet (minimum 0.01)",
 				Value:   1.0,
 			},
 			&cli.Float64Flag{
 				Name:    "timeout",
 				Aliases: []string{"t"},
-				Usage:   "Timeout (in seconds) to wait for each reply (default: 1 seconds)",
+				Usage:   "Timeout (in seconds) to wait for each reply (minimum 0.01)",
 				Value:   1.0,
 			},
 			&cli.BoolFlag{
 				Name:    "verbose",
 				Aliases: []string{"v"},
-				Usage:   "Enable verbose logging output",
+				Usage:   "Enable more verbose logging for debug output",
 			},
 		},
-		Action: action,
+		UsageText: "mping [options] target1[=Label1] target2[=Label2] ...",
+		Action:    action,
 	}
 }
 
@@ -126,17 +122,18 @@ func action(ctx context.Context, c *cli.Command) error {
 	ipv4 := c.Bool("ipv4")
 	ipv6 := c.Bool("ipv6")
 
+	// clamp timeout to interval, can't ping for longer than the interval between pings
 	if timeoutFloat > intervalFloat {
 		log.Warn().Msgf("Timeout (%.2f seconds) is greater than interval (%.2f seconds). Setting timeout to interval value.", timeoutFloat, intervalFloat)
 		timeoutFloat = intervalFloat
 	}
 
-	if intervalFloat <= 0 {
-		return cli.Exit("Interval must be greater than 0 seconds", 1)
+	if intervalFloat < 0.01 {
+		return cli.Exit("Interval must be at least 0.01 seconds", 1)
 	}
 
-	if timeoutFloat <= 0 {
-		return cli.Exit("Timeout must be greater than 0 seconds", 1)
+	if timeoutFloat < 0.01 {
+		return cli.Exit("Timeout must be at least 0.01 seconds", 1)
 	}
 
 	interval := time.Microsecond * time.Duration(intervalFloat*1e6)
@@ -160,17 +157,7 @@ func action(ctx context.Context, c *cli.Command) error {
 	}
 
 	// Acquire the targets
-	var targets []*pinger.Target
-	args := c.Args()
-	for i, arg := range args.Slice() {
-		target := pinger.ParseTarget(arg)
-		if target == nil {
-			log.Warn().Msgf("Skipping empty target #%d", i+1)
-			continue
-		}
-		targets = append(targets, target)
-	}
-
+	targets := parseTargets(c.Args().Slice()...)
 	if len(targets) == 0 {
 		return cli.Exit("No targets specified", 1)
 	}
@@ -184,12 +171,34 @@ func action(ctx context.Context, c *cli.Command) error {
 		log.Debug().Msgf("Resolved Target: %s (%s)", rt.IP.String(), rt.Label)
 	}
 
-	log.Debug().Msgf("Pinging %d targets", len(targets))
+	count := c.Uint32("count")
+	showRTT := true
+	if showRTT {
+		log.Debug().Msg("Latency display enabled")
+	}
+
+	log.Debug().Uint32("count", count).Msgf("Pinging %d targets", len(targets))
 	pinger := pinger.NewPinger(pinger.PingerOptions{
 		ResolvedTargets: resolved,
-		Count:           c.Uint32("count"),
+		Count:           count,
 		Interval:        interval,
 		Timeout:         timeout,
+		ShowRTT:         showRTT,
 	})
 	return pinger.Start(ctx)
+}
+
+func parseTargets(args ...string) []*pinger.Target {
+	var targets []*pinger.Target
+
+	for i, arg := range args {
+		target := pinger.ParseTarget(arg)
+		if target == nil {
+			log.Warn().Msgf("Skipping empty target #%d", i+1)
+			continue
+		}
+		targets = append(targets, target)
+	}
+
+	return targets
 }
