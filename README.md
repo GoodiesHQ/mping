@@ -7,7 +7,9 @@ Simple command line utility to ping multiple targets. By default, it will ping i
         --version, -V               Show the version number and exit
         --ipv4, -4                  Use IPv4 for name resolution
         --ipv6, -6                  Use IPv6 for name resolution
+        --no-color, --bland, -b     Disable colored output
         --count uint, -c uint       Number of echo requests to send to each target (0 = unlimited) (default: 0)
+
         --interval float, -i float  Interval (in seconds) between sending each packet (minimum 0.01) (default: 1)
         --timeout float, -t float   Timeout (in seconds) to wait for each reply (minimum 0.01) (default: 1)
         --verbose, -v               Enable more verbose logging for debug output
