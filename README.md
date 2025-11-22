@@ -114,3 +114,46 @@ Similar to the last command, but setting the interval to 0.015 seconds (15ms). I
     Fails  3         2         1               3        
     Loss   75.0%     50.0%     25.0%           75.0%    
     RTT    14ms      13ms      14ms            14ms
+
+Running without a count, it will run until you it `Ctrl+C`. The labels will re-print after every 10 pings.
+
+    # mping 1.1.1.1=CFDNS4 2606:4700:4700::1111=CFDNS6 one.one.one.one example.com=Example
+
+           CFDNS4    CFDNS6    one.one.one.one Example  
+           --------- --------- --------------- ---------
+        1) 15ms      15ms      15ms            24ms     
+        2) 20ms      20ms      20ms            20ms     
+        3) 19ms      19ms      19ms            13ms     
+        4) 21ms      15ms      21ms            15ms     
+        5) 16ms      15ms      14ms            15ms     
+        6) 17ms      15ms      17ms            14ms     
+        7) 15ms      14ms      15ms            14ms     
+        8) 17ms      15ms      13ms            15ms     
+        9) 17ms      17ms      17ms            17ms     
+       10) 17ms      13ms      17ms            17ms     
+    
+           CFDNS4    CFDNS6    one.one.one.one Example  
+           --------- --------- --------------- ---------
+       11) 18ms      16ms      15ms            15ms     
+       12) 18ms      15ms      16ms            15ms     
+       13) 18ms      16ms      16ms            15ms     
+       14) 17ms      15ms      13ms            15ms     
+       15) 17ms      14ms      16ms            14ms     
+       16) 15ms      16ms      18ms            15ms     
+       17) 18ms      15ms      16ms            16ms     
+       18) 17ms      14ms      14ms            14ms     
+       19) 16ms      13ms      13ms            13ms     
+       20) 18ms      13ms      16ms            16ms     
+    
+           CFDNS4    CFDNS6    one.one.one.one Example  
+           --------- --------- --------------- ---------
+       21) 15ms      15ms      16ms            16ms     
+       22) 18ms      19ms      15ms            14ms     
+       23) 18ms      16ms      16ms            16ms     
+       24) 16ms      15ms      15ms            15ms     
+       25) 17ms      17ms      17ms            17ms     
+    
+    Total  25        25        25              25       
+    Fails  0         0         0               0        
+    Loss   0.0%      0.0%      0.0%            0.0%     
+    RTT    17ms      16ms      16ms            16ms
